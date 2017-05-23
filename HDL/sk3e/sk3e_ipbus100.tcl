@@ -1,5 +1,5 @@
 # 
-# Project automation script for sk3e_eth_art 
+# Project automation script for sk3e_IPbus100 
 # 
 # Created for ISE version 14.7
 # 
@@ -35,8 +35,8 @@
 #        when this script was generated.
 # 
 
-set myProject "sk3e_eth_art"
-set myScript "sk3e_ipbus100.tcl"
+set myProject "sk3e_IPbus100"
+set myScript "sk3e_IPbus100.tcl"
 
 # 
 # Main (top-level) routines
@@ -231,7 +231,6 @@ proc add_source_files {} {
 
    puts "$myScript: Adding sources to project..."
 
-   xfile add "../src/ack_fifo/pkt_ack_pkg.vhd"
    xfile add "../src/ipbus/cern/core/ipbus_ctrl.vhd"
    xfile add "../src/ipbus/cern/core/ipbus_fabric.vhd"
    xfile add "../src/ipbus/cern/core/ipbus_package.vhd"

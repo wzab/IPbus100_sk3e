@@ -7,12 +7,18 @@
 -- License    : Dual LGPL/BSD License
 -- Company    : 
 -- Created    : 2014-11-10
--- Last update: 2017-05-23
+-- Last update: 2017-05-24
 -- Platform   : 
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: This blocks receives packets from PHY, and puts only the
 -- complete packets with correct CRC to the FIFO
+--
+-- This is a combination of my Free MAC for IPbus and the 100Mbps
+-- Ethernet sender prepadred for the FADE project
+-- https://doi.org/10.1088/1748-0221/10/07/T07005
+-- and https://doi.org/10.1117/12.2033278
+-- This is a remastered version for IPbus100
 -------------------------------------------------------------------------------
 -- Copyright (c) 2014 
 -------------------------------------------------------------------------------
@@ -20,6 +26,7 @@
 -- Date        Version  Author  Description
 -- 2014-11-10  1.0      WZab      Created
 -- 2015-09-07  1.1      WZab & Junfeng Yang (bug fixes)
+-- 2017-05-20  1.2      WZab      Modified for IPbus100
 -------------------------------------------------------------------------------
 
 library ieee;

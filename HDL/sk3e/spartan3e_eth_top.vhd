@@ -1,26 +1,27 @@
 -------------------------------------------------------------------------------
--- Title      : L3 FADE protocol demo for Spartan-3E Starter Kit board
+-- Title      : IPbus on 100Mbps Ethernet demo for Spartan-3E Starter Kit board
 -- Project    : 
 -------------------------------------------------------------------------------
 -- File       : spartan3e_eth_top.vhd
 -- Author     : Wojciech M. Zabolotny <wzab@ise.pw.edu.pl>
 -- Company    : 
--- Created    : 2007-12-31
--- Last update: 2017-05-23
+-- Created    : 2017-05-20
+-- Last update: 2017-05-24
 -- Platform   : 
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
 -- Description:
--- This file implements a simple entity with JTAG driven internal bus
--- allowing to control LEDs, read buttons, set two registers
--- and to read results of simple arithmetical operations
+-- This file shows possibility of using the IPbus protocol with FPGAs connected
+-- via 100 Mbps interfaces
+-- This code works with the original IPbus code available at
+-- https://svnweb.cern.ch/trac/cactus
 -------------------------------------------------------------------------------
--- Copyright (c) 2010
+-- Copyright (c) 2017
 -- This is public domain code!!!
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author  Description
--- 2010-08-03  1.0      wzab    Created
+-- 2017-05-20  1.0      wzab    Created
 -------------------------------------------------------------------------------
 
 
@@ -112,85 +113,11 @@ end spart3e_sk_eth;
 
 architecture beh of spart3e_sk_eth is
 
-  signal my_mac          : std_logic_vector(47 downto 0);
-  constant my_ether_type : std_logic_vector(15 downto 0) := x"fade";
-  signal transm_delay    : unsigned(31 downto 0);
-  signal restart         : std_logic;
-  signal dbg             : std_logic_vector(3 downto 0);
-  signal dta             : std_logic_vector(31 downto 0);
-  signal dta_we          : std_logic                     := '0';
-  signal dta_ready       : std_logic;
-  signal snd_start       : std_logic;
-  signal snd_ready       : std_logic;
-  signal dmem_addr       : std_logic_vector(13 downto 0);
-  signal dmem_dta        : std_logic_vector(31 downto 0);
-  signal dmem_we         : std_logic;
-  signal addr_a, addr_b  : integer;
-  signal test_dta        : unsigned(31 downto 0);
-  signal tx_mem_addr     : std_logic_vector(13 downto 0);
-  signal tx_mem_data     : std_logic_vector(31 downto 0);
-
-  signal arg1, arg2, res1                   : unsigned(7 downto 0);
-  signal res2                               : unsigned(15 downto 0);
-  signal sender                             : std_logic_vector(47 downto 0);
-  signal peer_mac                           : std_logic_vector(47 downto 0);
-  signal inputs, din, dout                  : std_logic_vector(7 downto 0);
-  signal addr                               : std_logic_vector(3 downto 0);
-  signal leds                               : std_logic_vector(7 downto 0);
-  signal nwr, nrd, rst_p, rst_n, dcm_locked : std_logic;
+  signal leds                             : std_logic_vector(7 downto 0);
+  signal rst_p, rst_n : std_logic;
   signal cpu_reset, not_cpu_reset, rst_del  : std_logic;
 
-  signal set_number          : unsigned(15 downto 0);
-  signal pkt_number          : unsigned(15 downto 0);
-  signal retry_number        : unsigned(15 downto 0) := (others => '0');
-  signal start_pkt, stop_pkt : unsigned(7 downto 0)  := (others => '0');
-
-
-  signal read_addr                   : std_logic_vector(15 downto 0);
-  signal read_data                   : std_logic_vector(15 downto 0);
-  signal read_done, read_in_progress : std_logic;
-
-  signal rst_cnt : integer := 0;
-
-  signal led_counter        : integer                       := 0;
-  signal tx_counter         : integer                       := 10000;
-  signal Reset              : std_logic;
-  signal s_gtx_clk          : std_logic;
   signal sysclk             : std_logic;
-  signal Speed              : std_logic_vector(2 downto 0);
-  signal Rx_mac_ra          : std_logic;
-  signal Rx_mac_rd          : std_logic;
-  signal Rx_mac_data        : std_logic_vector(31 downto 0);
-  signal Rx_mac_BE          : std_logic_vector(1 downto 0);
-  signal Rx_mac_pa          : std_logic;
-  signal Rx_mac_sop         : std_logic;
-  signal Rx_mac_eop         : std_logic;
-  signal Tx_mac_wa          : std_logic;
-  signal Tx_mac_wr          : std_logic;
-  signal Tx_mac_data        : std_logic_vector(31 downto 0);
-  signal Tx_mac_BE          : std_logic_vector(1 downto 0);
-  signal Tx_mac_sop         : std_logic;
-  signal Tx_mac_eop         : std_logic;
-  signal Pkg_lgth_fifo_rd   : std_logic;
-  signal Pkg_lgth_fifo_ra   : std_logic;
-  signal Pkg_lgth_fifo_data : std_logic_vector(15 downto 0);
-  signal Gtx_clk            : std_logic;
-  signal Tx_er              : std_logic;
-  signal Tx_en              : std_logic;
-  signal s_Txd              : std_logic_vector(3 downto 0);
-  signal Rx_er              : std_logic;
-  signal Rx_dv              : std_logic;
-  signal s_Rxd              : std_logic_vector(3 downto 0);
-  signal Crs                : std_logic;
-  signal Col                : std_logic;
-  signal CSB                : std_logic                     := '1';
-  signal WRB                : std_logic                     := '1';
-  signal CD_in              : std_logic_vector(15 downto 0) := (others => '0');
-  signal CD_out             : std_logic_vector(15 downto 0) := (others => '0');
-  signal CA                 : std_logic_vector(7 downto 0)  := (others => '0');
-  signal s_Mdo              : std_logic;
-  signal s_MdoEn            : std_logic;
-  signal s_Mdi              : std_logic;
 
   signal buttons        : std_logic_vector(3 downto 0);
   signal clk25, ipb_clk : std_logic;
@@ -198,14 +125,16 @@ architecture beh of spart3e_sk_eth is
   signal s_dta_we    : std_logic;
   constant zeroes_32 : std_logic_vector(31 downto 0) := (others => '0');
 
-  signal mac_tx_data, mac_rx_data                                                                       : std_logic_vector(7 downto 0);
-  signal mac_tx_valid, mac_tx_last, mac_tx_error, mac_tx_ready, mac_rx_valid, mac_rx_last, mac_rx_error : std_logic;
-
   signal ipb_master_out : ipb_wbus;
   signal ipb_master_in  : ipb_rbus;
   signal mac_addr       : std_logic_vector(47 downto 0);
   signal ip_addr        : std_logic_vector(31 downto 0);
 
+  signal mac_tx_data, mac_rx_data                                                                       : std_logic_vector(7 downto 0);
+  signal mac_tx_valid, mac_tx_last, mac_tx_error, mac_tx_ready : std_logic;
+  signal mac_rx_valid, mac_rx_last, mac_rx_error : std_logic;
+
+  
   component clk_ipb100
     port(
       CLKIN_IN        : in  std_logic;
@@ -364,17 +293,7 @@ begin  -- beh
 --  flash_oe_b <= '1';
 --  flash_we_b <= '1';
 --  flash_ce_b <= '1';
-  s_RXD(3 downto 0) <= E_RXD;
-  E_TXD             <= s_TXD(3 downto 0);
 
-  Pkg_lgth_fifo_rd <= Pkg_lgth_fifo_ra;
-
-  addr_a <= to_integer(unsigned(dmem_addr));
-  addr_b <= to_integer(unsigned(tx_mem_addr));
-
-
-  -- We don't use 125MHz clock!
-  s_gtx_clk <= '0';
 
   ipb_clk <= clk25;
 
@@ -390,12 +309,7 @@ begin  -- beh
       CLK0_OUT        => open,
       LOCKED_OUT      => rst_n);
 
-  --leds <= (pkt_rx_led, pkt_tx_led, locked, onehz);
-  --leds  <= (led1, led2, locked, onehz);
 
---      Ethernet MAC core and PHY interface
--- In this version, consists of hard MAC core and GMII interface to external PHY
--- Can be replaced by any other MAC / PHY combination
   eth_iface : eth_s3e_100mii
     port map (
       clk25       => clk25,
@@ -406,7 +320,7 @@ begin  -- beh
       mii_tx_clk  => E_TX_CLK,
       mii_col     => E_COL,
       mii_crs     => E_CRS,
-      mii_txd     => s_TXD,
+      mii_txd     => E_TXD,
       mii_tx_en   => E_TX_EN,
       mii_tx_er   => E_TX_ER,
       mii_rx_clk  => E_RX_CLK,
@@ -468,11 +382,5 @@ begin  -- beh
 
   -- End of IPbus part
 
-  -- reset
-
-  --phy_reset <= rst_n;
-
-
-  -- gpio_led(1 downto 0) <= std_logic_vector(to_unsigned(led_counter, 2));
 
 end beh;

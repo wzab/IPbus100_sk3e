@@ -1,15 +1,17 @@
 -------------------------------------------------------------------------------
--- Title      : Wrapper for FPGA Ethernet interface - emulating the 
+-- Title      : Wrapper for FPGA 100Mbps MII Ethernet interface - replacing the 
 --              original IPBus eth_s7_gmii.vhd
 --
--- Project    : 
+-- Based on FADE project: https://doi.org/10.1088/1748-0221/10/07/T07005
+-- and https://doi.org/10.1117/12.2033278
+--  
 -------------------------------------------------------------------------------
--- File       : eth_s7_gmii.vhd
+-- File       : eth_s3_100mii.vhd
 -- Author     : Wojciech M. Zabolotny (wzab@ise.pw.edu.pl)
 -- License    : Dual LGPL/BSD License
 -- Company    : 
--- Created    : 2014-12-24
--- Last update: 2017-05-22
+-- Created    : 2017-05-20
+-- Last update: 2017-05-24
 -- Platform   : 
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------

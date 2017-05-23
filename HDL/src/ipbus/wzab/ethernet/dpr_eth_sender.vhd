@@ -7,7 +7,7 @@
 -- License    : Dual LGPL/BSD License
 -- Company    : 
 -- Created    : 2014-11-10
--- Last update: 2017-05-23
+-- Last update: 2017-05-24
 -- Platform   : 
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -18,12 +18,19 @@
 -- writing them to the DP RAM
 -- The second one, receives packets from the DP RAM and transmits them via
 -- Ethernet PHY.
+--
+-- The original version was prepared for the FADE project
+-- https://doi.org/10.1088/1748-0221/10/07/T07005
+-- and https://doi.org/10.1117/12.2033278
+-- This is a remastered version for IPbus100
+
 -------------------------------------------------------------------------------
 -- Copyright (c) 2014 
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author  Description
 -- 2014-11-10  1.0      WZab      Created
+-- 2017-05-20  1.1      WZab      Modified for IPbus100
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
