@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node>
+    <node id="LEDS" address="0x00000000" permission="rw" />
+    <node id="ID" address="0x00000002" permission="r" />
+    <node id="BUTTONS" address="0x00000003" permission="r" />
+
+
+</node>

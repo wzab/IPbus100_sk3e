@@ -1,0 +1,4 @@
+vhdl work  clock_div.vhd
+vhdl work  clocks_7s_extphy.vhd
+include ethernet
+vhdl work  slaves.vhd

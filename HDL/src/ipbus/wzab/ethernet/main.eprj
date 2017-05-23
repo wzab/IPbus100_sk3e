@@ -1,0 +1,6 @@
+vhdl work  dpram_inf_scl.vhd
+vhdl work  dpr_eth_receiver.vhd
+vhdl work  dpr_eth_sender.vhd
+vhdl work  eth_7s_1000basex.vhd
+vhdl work  eth_7s_gmii.vhd
+vhdl work  pkg_newcrc32_d8.vhd

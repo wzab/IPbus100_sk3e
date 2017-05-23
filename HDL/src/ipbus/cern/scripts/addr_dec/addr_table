@@ -1,0 +1,5 @@
+# Example addr_table file to show the format
+#
+# num	name		base	addr_width
+
+0	ctrl	0x000000	4
